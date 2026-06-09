@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Báo cáo Vận hành XK Gạo — AAN | 09/06/2026</title>
+<style>
+  :root{
+    --r:#e02424; --r-bg:#fde8e8; --a:#d97706; --a-bg:#fef3c7; --g:#15803d; --g-bg:#dcfce7;
+    --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#f1f5f9; --card:#fff; --brand:#0b5d3b; --brand2:#0e7a4f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
+  header{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;padding:22px 28px}
+  header h1{margin:0 0 4px;font-size:21px;letter-spacing:.2px}
+  header .sub{opacity:.9;font-size:13px}
+  header .meta{margin-top:10px;display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;opacity:.95}
+  .wrap{max-width:1240px;margin:0 auto;padding:18px 22px 60px}
+
+  /* KPI */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0 8px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .kpi .n{font-size:26px;font-weight:700;color:var(--ink)}
+  .kpi .l{font-size:12px;color:var(--muted);margin-top:2px}
+  .kpi.r{border-left:4px solid var(--r)} .kpi.a{border-left:4px solid var(--a)} .kpi.g{border-left:4px solid var(--g)} .kpi.b{border-left:4px solid var(--brand2)}
+
+  /* Tabs */
+  .tabs{display:flex;gap:6px;margin:18px 0 0;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+  .tab{padding:10px 16px;cursor:pointer;border:none;background:none;font-size:14px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px}
+  .tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+  .panel{display:none;animation:fade .25s}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+
+  /* Controls */
+  .controls{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:16px 0;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
+  .ctl{display:flex;flex-direction:column;gap:5px}
+  .ctl label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .ctl input[type=text],.ctl select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;min-width:170px;background:#fff;color:var(--ink)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{padding:5px 12px;border-radius:20px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-size:12.5px;font-weight:600;user-select:none;color:var(--muted)}
+  .chip.on.R{background:var(--r-bg);border-color:var(--r);color:var(--r)}
+  .chip.on.A{background:var(--a-bg);border-color:var(--a);color:var(--a)}
+  .chip.on.G{background:var(--g-bg);border-color:var(--g);color:var(--g)}
+  .chip.on.ALL{background:#e0e7ff;border-color:rgb(34, 26, 185);color:rgb(34, 26, 185)}
+  .chip:not(.on){opacity:.55}
+  .rng{display:flex;align-items:center;gap:8px}
+  .rng input[type=range]{width:150px}
+  .rng .val{font-weight:700;color:var(--brand);min-width:42px;text-align:center}
+  .reset{margin-left:auto;padding:7px 14px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--ink)}
+  .reset:hover{background:#f8fafc}
+  .count{font-size:12.5px;color:var(--muted);margin:4px 2px 12px}
+
+  /* Cards */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+  .row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04);display:flex;flex-direction:column}
+  .row .top{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .row .cust{font-weight:700;font-size:13.5px;color:var(--ink)}
+  .row .ctr{font-size:11.5px;color:var(--muted);margin-top:2px;font-family:"Cascadia Code",Consolas,monospace}
+  .badge{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:6px;white-space:nowrap;letter-spacing:.3px}
+  .badge.R{background:var(--r-bg);color:var(--r)} .badge.A{background:var(--a-bg);color:var(--a)} .badge.G{background:var(--g-bg);color:var(--g)}
+  .row .body{padding:11px 14px;flex:1}
+  .row .stage{display:flex;align-items:center;gap:5px;margin-bottom:9px;flex-wrap:wrap}
+  .stp{font-size:10px;padding:2px 7px;border-radius:10px;background:#f1f5f9;color:var(--muted);font-weight:600}
+  .stp.done{background:var(--g-bg);color:var(--g)}
+  .stp.now{background:#dbeafe;color:rgb(39, 86, 226)}
+  .row .fact{font-size:12.5px;margin:6px 0;color:var(--ink);line-height:1.4}
+  .row .fact b{color:var(--ink)}
+  .row .who{font-size:11.5px;color:var(--muted);margin-top:8px}
+  .row .who .ow{color:var(--ink);font-weight:600}
+  .row .next{margin:9px 14px 12px;padding:9px 11px;background:#f8fafc;border-left:3px solid var(--brand2);border-radius:0 8px 8px 0;font-size:12px;color:var(--ink)}
+  .row .next .dl{font-weight:700;color:var(--r)}
+  .tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;margin-right:5px}
+  .tag.money{background:#ecfccb;color:#4d7c0f} .tag.doc{background:#e0f2fe;color:#0369a1} .tag.ship{background:#f3e8ff;color:#6b21a8} .tag.new{background:#fce7f3;color:#b91c1c}
+
+  h2.sec{font-size:16px;margin:22px 0 4px;color:var(--brand)}
+  p.lead{color:var(--muted);margin:2px 0 12px;font-size:13px}
+  .insight{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+  .insight h3{margin:0 0 10px;font-size:14px;color:var(--ink)}
+  .insight ul{margin:6px 0;padding-left:20px}
+  .insight li{margin:5px 0;font-size:13px;color:var(--ink)}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.split{grid-template-columns:1fr}}
+  .bar{display:flex;align-items:center;gap:8px;margin:7px 0}
+  .bar .lab{width:120px;font-size:12px;flex-shrink:0;color:var(--ink)}
+  .bar .track{flex:1;height:20px;background:#f1f5f9;border-radius:5px;overflow:hidden}
+  .bar .fill{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:8px;color:#fff;font-size:11px;font-weight:700}
+  .note{font-size:11.5px;color:var(--muted);font-style:italic;margin-top:6px}
+  .legend{font-size:11px;color:var(--muted);margin:6px 0}
+  footer{text-align:center;color:var(--muted);font-size:11.5px;padding:24px}
+  .fact-split{display:inline-block;margin-right:4px}
+  .empty{text-align:center;color:var(--muted);padding:40px;font-size:14px;display:none}
+  /* === Thanh chon ngay (THEM MOI) === */
+  .datenav{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:16px 0 0}
+  .datenav .lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-right:4px}
+  .datenav a{font-size:13px;font-weight:600;color:var(--brand);text-decoration:none;padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .datenav a:hover{background:#f1f5f9}
+  .datenav a.current{background:var(--brand);border-color:var(--brand);color:#fff;cursor:default}
+</style>
+</head>
+<body>
+<header>
+  <h1>Báo cáo Vận hành Xuất khẩu Gạo — A AN</h1>
+  <div class="sub">Tổng hợp &amp; trực quan hoá hoạt động bộ phận | Nguồn: rà soát ~73 email nghiệp vụ + 7 báo cáo tiến độ nội bộ ngày 09/06/2026</div>
+  <div class="meta">
+    <span>📅 Kỳ báo cáo: 09/06/2026 (giờ Việt Nam)</span>
+    <span>👤 Lập: Phòng Vận hành XK Gạo</span>
+    <span>📧 Email nghiệp vụ phân tích: 73 + 7 báo cáo team</span>
+<span>💬 <a href="https://zalo.me/4526550082206503187" target="_blank" class="zalo-link">Kết nối Zalo Hỗ Trợ</a></span>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- === Thanh chon ngay (THEM MOI) === -->
+  <nav class="datenav" id="datenav"><span class="lbl">📅 Chọn ngày</span></nav>
+
+
+  <!-- KPI -->
+  <div class="kpis">
+    <div class="kpi b"><div class="n" id="k-total">—</div><div class="l">Hợp đồng/lô theo dõi</div></div>
+    <div class="kpi r"><div class="n" id="k-r">—</div><div class="l">🔴 ĐỎ — Xử lý ngay</div></div>
+    <div class="kpi a"><div class="n" id="k-a">—</div><div class="l">🟡 VÀNG — Theo dõi</div></div>
+    <div class="kpi g"><div class="n" id="k-g">—</div><div class="l">🟢 XANH — Đúng tiến độ</div></div>
+    <div class="kpi b"><div class="n" id="k-cust">—</div><div class="l">Khách hàng hoạt động</div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="overview">📊 Tổng quan</button>
+    <button class="tab" data-tab="board">📋 Bảng theo dõi (lọc)</button>
+    <button class="tab" data-tab="risk">⚠️ Vấn đề &amp; Rủi ro</button>
+    <button class="tab" data-tab="action">✅ Đề xuất hành động</button>
+  </div>
+
+  <!-- ============ OVERVIEW ============ -->
+  <section class="panel active" id="overview">
+    <h2 class="sec">Big picture — toàn cảnh hôm nay</h2>
+    <p class="lead">Trục hoạt động chính: chứng từ (draft/final cert, BL, CO/Phyto/fumi) và triển khai vận chuyển (nhiều chủ trương kéo cont thủy/bộ được duyệt trong ngày). Điểm nóng: cụm <b>Surewave</b> (deadline confirm dồn 09–11/6) và cụm <b>Wilmar/Vinarice đi Ghana</b> (vướng Phyto). <b>Rủi ro nặng nhất:</b> Agrico VA-AGI-210126 — test mẫu phát hiện <b>3 chất vượt ngưỡng</b> khi tàu đã chạy (ATD 04/6).</p>
+
+    <div class="split">
+      <div class="insight">
+        <h3>Phân bố trạng thái RAG</h3>
+        <div id="rag-bars"></div>
+        <div class="legend">Tỷ trọng theo số hợp đồng/lô đang theo dõi.</div>
+      </div>
+      <div class="insight">
+        <h3>Khối lượng theo Khách hàng (số lô có diễn biến hôm nay)</h3>
+        <div id="cust-bars"></div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <h3>Diễn biến nổi bật trong ngày</h3>
+      <ul>
+        <li><span class="tag doc">RỦI RO MỚI</span> <b>Agrico VA-AGI-210126</b>: TAT test report về hôm nay phát hiện <b>3 chất vượt ngưỡng</b>, trong khi tàu đã chạy (ATD 04/6) — NGON đề nghị AAN advice hướng xử lý. Đây là rủi ro lớn nhất phát sinh trong ngày.</li>
+        <li><span class="tag new">MỚI</span> <b>Surewave</b> ký thêm <b>AAN-SW.040626-1 &amp; -2</b> (SUR1251/1256/1259 đi TARAWA/HONIARA/VILA), gửi draft PI 090626; <b>KATO-270526</b> được duyệt triển khai + chỉ định SGS; <b>AWTC-AAN.090626</b> (đi Đức, hàng đạt dư lượng EU) được duyệt triển khai.</li>
+        <li><span class="tag doc">CHỨNG TỪ</span> <b>Wilmar/Vinarice (Ghana)</b>: khách đòi bỏ field bắt buộc trên Phyto + sửa tên hàng/bỏ "MASTER"/show số bao trên cert — ta đã <b>từ chối xóa field Phyto</b> (không hợp lệ với mẫu chính thức).</li>
+        <li><span class="tag money">DÒNG TIỀN</span> Thu được: <b>VA-DPF LOT2</b> (đã nhận LCC → lấy OBL), <b>KELM HEG LOT1</b> (đã TT, gửi BCT gốc 05/6). Tồn đọng lớn: <b>AWTC (8 lô copy docs chờ TT)</b>, BELC (2 lô).</li>
+        <li><span class="tag ship">DELAY</span> <b>PANCON CHAMPION 2604N</b> → new ETD 11/6; <b>AAN-RIZE-240326 LOT2</b> đổi mother vessel (MSC VENICE → MSC CAMILLE, transit SIN), phát sinh <b>phí DET 394.600 VND</b> (MSC từ chối waive).</li>
+      </ul>
+    </div>
+
+    <div class="insight">
+      <h3>SỰ VIỆC &nbsp;vs&nbsp; NHẬN ĐỊNH</h3>
+      <p style="font-size:12.5px;margin:4px 0"><b>Sự việc</b> (trích từ email): các mốc trạng thái, ETD/ATD, kết quả test, yêu cầu chỉnh sửa của khách lấy nguyên văn từ ~73 email + 7 báo cáo team ngày 09/6.</p>
+      <p style="font-size:12.5px;margin:4px 0"><b>Nhận định</b>: rủi ro nặng nhất là <u>Agrico VA-AGI-210126 test fail khi hàng đã rời cảng</u> — không còn cách giữ hàng, cần xác minh 3 chất + thị trường đích để có kịch bản thương lượng. Dòng tiền tập trung ở AWTC (tuổi nợ từ tháng 2) nhưng vẫn mở HĐ mới 090626 → cần cân nhắc điều kiện TT. Lô Wilmar/Ghana giữ lập trường Phyto là <u>đúng</u>, rủi ro là kéo dài việc chốt bộ chứng từ → cần Sales thuyết phục khách. Cụm Surewave mật độ deadline cao → cần checklist confirm. DET RIZE LOT2 → soát lại quy trình lấy cont sớm để tránh lặp lại.</p>
+    </div>
+  </section>
+
+  <!-- ============ BOARD ============ -->
+  <section class="panel" id="board">
+    <div class="controls">
+      <div class="ctl">
+        <label>Tìm kiếm (KH / số HĐ / nội dung)</label>
+        <input type="text" id="q" placeholder="vd: surewave, AWTC, BL, Phyto…">
+      </div>
+      <div class="ctl">
+        <label>Trạng thái RAG</label>
+        <div class="chips" id="rag-chips">
+          <span class="chip ALL on" data-rag="ALL">TẤT CẢ</span>
+          <span class="chip R on" data-rag="R">🔴 ĐỎ</span>
+          <span class="chip A on" data-rag="A">🟡 VÀNG</span>
+          <span class="chip G on" data-rag="G">🟢 XANH</span>
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Khách hàng</label>
+        <select id="cust-sel"><option value="ALL">Tất cả khách hàng</option></select>
+      </div>
+      <div class="ctl">
+        <label>Bước quy trình tối thiểu</label>
+        <div class="rng">
+          <input type="range" id="stage-rng" min="1" max="5" value="1" step="1">
+          <span class="val" id="stage-val">≥1</span>
+        </div>
+        <span class="legend">1 Booking · 2 Sản xuất · 3 Đóng hàng · 4 Chứng từ · 5 Thanh toán</span>
+      </div>
+      <button class="reset" id="reset">↺ Đặt lại bộ lọc</button>
+    </div>
+    <div class="count" id="count"></div>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty">Không có lô nào khớp bộ lọc hiện tại.</div>
+  </section>
+
+  <!-- ============ RISK ============ -->
+  <section class="panel" id="risk">
+    <h2 class="sec">Vấn đề &amp; Rủi ro — phân loại RAG</h2>
+    <p class="lead">Tách theo mức độ ưu tiên. Mỗi mục: sự việc → nhận định → bên phối hợp.</p>
+    <div id="risk-list"></div>
+  </section>
+
+  <!-- ============ ACTION ============ -->
+  <section class="panel" id="action">
+    <h2 class="sec">Đề xuất hành động — ưu tiên hôm nay → 09–11/6</h2>
+    <p class="lead">Tinh thần teamwork, không quy lỗi cá nhân — mỗi việc gắn bên chủ trì + bên phối hợp + deadline.</p>
+    <div id="action-list"></div>
+  </section>
+
+</div>
+
+<footer>
+  Báo cáo tạo tự động · Dữ liệu trích từ email ngày 09/06/2026 · Trạng thái RAG &amp; Mr. Jay +84396529995; Giao tiếp với dữ liệu <span>💬 <a href="https://zalo.me/4526550082206503187" target="_blank" class="zalo-link">Kết nối Zalo Hỗ Trợ</a></span>.
+</footer>
+
+<script>
+const DATA = [
+  {cust:"AGRICO", ctr:"VA-AGI-210126 (TAT test report)", rag:"R", stage:4, vol:3, tags:["doc","ship"],
+   title:"Test mẫu phát hiện 3 chất vượt ngưỡng — tàu ĐÃ CHẠY", owner:"Chứng từ (Huyền) + QA + Sales Agrico",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:4,
+   facts:["Tàu đã chạy (<b>ATD 04/6</b>). Hôm nay NGON gửi TAT test report báo <b>3 chất bị phát hiện vượt ngưỡng</b>, đề nghị AAN advice hướng xử lý.","Báo cáo team trước chỉ ghi \"đang check thời gian trả KQ test\" → nay đã có KQ và là <b>KQ xấu</b>.","Rủi ro nặng nhất: hàng đã rời cảng, <b>không còn cách giữ hàng lại</b> → nguy cơ vướng chứng thư/CO, bị từ chối tại cảng đến hoặc tranh chấp chất lượng."],
+   next:"CT+QA xác minh 3 chất là gì + ngưỡng thị trường đích + phương án test lại/chứng thư thay thế; Sales chuẩn bị kịch bản thương lượng; phối hợp NCC truy nguyên lô.", dl:"GẤP — trong ngày 09/6"},
+
+  {cust:"WILMAR / VINARICE", ctr:"7520004862 (117.495MT) & 7520004865 (164.5MT)", rag:"R", stage:4, vol:2, tags:["doc","ship"],
+   title:"DT8/OM5451 đi Ghana — vướng yêu cầu sửa Phyto không hợp lệ", owner:"Trần Thị Yến Nhi (CT) + Đặng Thị Thùy Tiên + Sales",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:4,
+   facts:["Tiên yêu cầu SGS sửa draft cert: đổi tên hàng theo khách, bỏ Marking, bỏ chữ \"MASTER\", show NUMBER OF BAGS.","Nhi phản hồi Zehnira Bi (Wilmar): gửi revised cert nhưng <b>từ chối xóa text trên Phyto</b> vì là field bắt buộc của mẫu chính thức, không thể bỏ.","Rủi ro: khách đòi sửa Phyto theo cách không hợp lệ → có thể kéo dài việc chốt bộ chứng từ; lô lớn đi Ghana."],
+   next:"Giữ vững lập trường Phyto (đúng); Sales giải thích để khách chấp nhận; chốt các cert còn lại (CoA/CoW) sớm. Cần xác minh: khách đã chấp nhận giải thích chưa.", dl:"Trong ngày 09/6"},
+
+  {cust:"AWTC", ctr:"221225 L5 · 100226 L1-5 · 280426 L1-2", rag:"R", stage:4, vol:3, tags:["money","doc"],
+   title:"8 lô copy docs chờ TT — công nợ kéo dài + mở thêm HĐ mới", owner:"Khiet (Sales) + Chứng từ",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:4,
+   facts:["221225 LOT5 (copy 12/02), 100226 LOT1-5 (copy 02/04→28/04), 280426 LOT1-2 (copy ex-CO 29/05 &amp; 04/06, <b>còn thiếu CO</b>) — tất cả xong copy docs, <b>chờ khách TT</b>.","HĐ mới <b>AAN-AAN.090626</b> (36T ST25 + 84T DT8 + 30T Japo đi Đức, hàng đạt dư lượng EU) đã được anh Nam duyệt triển khai.","Rủi ro dòng tiền lớn nhất hiện nay: công nợ từ tháng 2 trong khi vẫn mở thêm HĐ mới cùng khách."],
+   next:"Sales lập bảng tuổi nợ từng lô + mốc giục TT; cân nhắc điều kiện TT cho HĐ mới 090626; CT ưu tiên hoàn thiện CO cho 280426 L1-2.", dl:"Tuần này"},
+
+  {cust:"DELAY TÀU", ctr:"PANCON CHAMPION 2604N · AAN-RIZE-240326 L2", rag:"R", stage:3, vol:2, tags:["ship"],
+   title:"Thay đổi lịch tàu + phát sinh phí DET", owner:"Vận hành + Chứng từ (Nhi)",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:3,
+   facts:["PANCON CHAMPION 2604N delay → <b>new ETD 11/6</b>.","AAN-RIZE-240326 LOT2 (EBKG16812179) đổi mother vessel MSC VENICE → MSC CAMILLE (transit SIN), tàu chạy 07/6.","Phát sinh phí <b>DET 394.600 VND</b> cont TCLU5378769 (lấy cont sớm 19/5) — Nhi xin waive, <b>MSC từ chối</b> → AAN phải chịu, đang xin debit note."],
+   next:"Đối chiếu lô gắn PANCON CHAMPION để chỉnh lịch chứng từ; ghi nhận DET 394.600 VND vào chi phí lô RIZE L2; soát lại quy trình lấy cont sớm để tránh DET lặp lại.", dl:"09–11/6"},
+
+  {cust:"SUREWAVE", ctr:"300326 L1/L4 · MPR260079 · 040626 · 090626", rag:"A", stage:4, vol:3, tags:["doc","ship","new"],
+   title:"Cụm chứng từ + HĐ dày đặc — deadline confirm dồn", owner:"Nguyễn Thị Thanh Huyền (CT) + Võ Phương Nguyên (Sales) + Tiên",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:4,
+   facts:["AAN-SW.300326 LOT1 (SUR1068, ETD 9/6 TARAWA): đang xử lý BL &amp; DN SUR1068 (VN00442200), hãng tàu sẽ phát hành invoice.","AAN-SW.300326 LOT4 (SUR1061, ETD 7/6 JOHANNESBURG): chạy final cert + xin CO (gửi chị Hằng/anh Tuấn), thêm \"Place of delivery: Johannesburg\".","<b>MEWAH/MOI MPR260079 (ETD 12/6): confirm draft BL trước 9:00 ngày 11/6.</b>","HĐ mới: 040626-1 &amp; -2 đã ký (SUR1251/1256/1259 TARAWA/HONIARA/VILA); gửi draft PI 090626; gửi Max bản chỉnh tỷ lệ Vitamin 0.1% (SUR1211/1223)."],
+   next:"Dựng checklist deadline confirm: MPR260079 trước 9:00 11/6; theo dõi Max ký các bản contract điều chỉnh Vitamin 0.1%. Rủi ro chính là sót deadline do mật độ cao.", dl:"11/6 09:00 (MPR260079)"},
+
+  {cust:"KELM", ctr:"VNR-HEG-280326 L1 & L2", rag:"A", stage:3, vol:1, tags:["ship","money"],
+   title:"LOT1 khép vòng — LOT2 lùi ETD, chạy đường thủy", owner:"PMH + Vận hành",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:3,
+   facts:["LOT1: khách đã TT → đã gửi BCT gốc 05/6 (<b>khép vòng</b>).","LOT2: ETD lùi <b>12/6 → 17/6</b>; đang triển khai vận chuyển đường thủy."],
+   next:"Bám LOT2 chốt cước/điểm đóng hàng đường thủy trước khi sà lan chạy.", dl:"Trước khi sà lan triển khai"},
+
+  {cust:"MEWAH / MOI", ctr:"MPR260079 · 260104-106 · MPR260087", rag:"A", stage:4, vol:2, tags:["doc","ship"],
+   title:"Chạy chứng từ + booking mới, MOI Japo chờ TT", owner:"Đặng Thị Thùy Tiên (CT) + Sales",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:4,
+   facts:["MPR260079 ETD 12/6: SGS giám định lô <b>736T gộp 4 HĐ</b> (260079/104/105/106); Tiên gửi draft docs cho khách (Hooi Sook Ling), confirm draft BL trước 9:00 ngày 11/6; đã mở tờ khai.","260104/105 ETD 18/6; 260106 (MIX 5451+555) ETD 18/6 — đều đã triển khai booking.","MOI Japo (MPR260087): đã gửi BL 03/6, <b>chờ TT</b>."],
+   next:"Đúng tiến độ; bám mốc confirm draft BL 11/6.", dl:"11/6 (draft BL)"},
+
+  {cust:"BẢO HIỂM — CHARPEACO / DELMON", ctr:"AAN-CV-230426 (50T) · VNR-UCS-160526", rag:"A", stage:2, vol:1, tags:["ship","doc"],
+   title:"Mua BH vận chuyển (Vinarice) — duyệt kéo cont", owner:"Phòng KD + Nguyễn Tiến Đạt (BPBH) + Chứng từ",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:2,
+   facts:["CV-230426 (50T DT8 đi Ghana): duyệt chủ trương kéo cont đường thủy (booking EBKG17231352), cập nhật nơi lấy rỗng, dự kiến giao bao 9/6, <b>ETD 26/6</b>.","DELMON UCS-160526: duyệt kéo cont (booking 6503308630, 1x20'), <b>ETD 21/6</b>, SI/VGM cutoff 15:00 18/6."],
+   next:"Chứng từ phối hợp chặt mốc gửi nháp/gốc với BPBH để giữ điều kiện đơn BH.", dl:"Theo lịch tàu chạy"},
+
+  {cust:"VA-BE (Mekong)", ctr:"FC.41.26 LOT3 (OOLU2328653020)", rag:"A", stage:4, vol:1, tags:["doc","ship"],
+   title:"Confirm draft bill — chờ tàu chạy làm chứng từ gốc", owner:"Anh Bảo / Mekong + Chứng từ (Huyền)",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:4,
+   facts:["ETD 9/6; khách confirm draft bill <b>OOLU2328653020</b>.","An đã cfm debit note → Mekong ra hóa đơn, đang chờ tàu chạy làm chứng từ gốc."],
+   next:"Bám ATD để chạy chứng từ gốc (Huyền check ATD).", dl:"Theo ATD"},
+
+  {cust:"VA-DPF", ctr:"VA-DPF.020426 LOT2 (APCSGNGOT2605044)", rag:"G", stage:5, vol:1, tags:["money","doc"],
+   title:"Khép vòng — nhận TT LCC, lấy OBL đi Goteborg", owner:"Chứng từ + Sales",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:5,
+   facts:["SEAL xác nhận <b>đã nhận thanh toán LCC</b> → AAN qua lấy OBL.","MSC VENICE, ATD 30/5 đi Goteborg (Dragon Food Port AB). <b>Khép vòng tốt</b>."],
+   next:"Hoàn tất — không còn việc treo.", dl:"—"},
+
+  {cust:"KATO", ctr:"AAN-KATO-270526 (20T Japo)", rag:"G", stage:1, vol:1, tags:["new","doc"],
+   title:"Duyệt triển khai HĐ mới + chỉ định SGS giám định", owner:"Chứng từ + Vinarice",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:1,
+   facts:["Anh Nam <b>duyệt triển khai HĐ</b> + duyệt SGS giám định/hun trùng (20T Japo đi Nhật).","VINARICE đã gửi yêu cầu giám định SGS. Đúng tiến độ."],
+   next:"Triển khai giám định/hun trùng theo lịch; bám booking đi Nhật.", dl:"Theo lịch KH"},
+
+  {cust:"BELC / NEXT / NORTHPOINT / EMRALD …", ctr:"TL2026-06→15 · EMR-200326 · NEXT/JVS/HANYU/D&K", rag:"G", stage:1, vol:1, tags:["ship","money"],
+   title:"Theo dõi lịch tàu / ký cọc / TT — đúng tiến độ", owner:"Sales + Chứng từ",
+   stages:["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"], at:1,
+   facts:["BELC TL2026-08 triển khai booking ETD 16/6; TL2026-11→15 <b>chờ khách ký + cọc</b>; TL2026-06/07 chờ TT.","<b>EMRALD AAN-EMR-200326 đã hủy booking.</b>","NEXT / NORTHPOINT / JVS / HANYU / D&K / FAR EAST / WINTER SPRING — đang đúng tiến độ (chờ lịch tàu / chờ khách ký-cọc / chờ TT)."],
+   next:"Theo dõi lịch tàu / SPS / cọc / TT từ khách; ghi nhận hủy booking EMRALD.", dl:"Theo lịch KH"},
+];
+
+const RAGNAME={R:"🔴 ĐỎ — Xử lý ngay",A:"🟡 VÀNG — Theo dõi",G:"🟢 XANH — Đúng tiến độ"};
+const RAGCLR={R:"#e02424",A:"#d97706",G:"#15803d"};
+const STAGENAMES=["Booking","Sản xuất","Đóng hàng","Chứng từ","Thanh toán"];
+
+document.getElementById('k-total').textContent=DATA.length;
+document.getElementById('k-r').textContent=DATA.filter(d=>d.rag==='R').length;
+document.getElementById('k-a').textContent=DATA.filter(d=>d.rag==='A').length;
+document.getElementById('k-g').textContent=DATA.filter(d=>d.rag==='G').length;
+document.getElementById('k-cust').textContent=new Set(DATA.map(d=>d.cust.split(' (')[0])).size;
+
+(function(){
+  const tot=DATA.length;
+  const order=['R','A','G'];
+  const el=document.getElementById('rag-bars');
+  order.forEach(r=>{
+    const n=DATA.filter(d=>d.rag===r).length;const pct=Math.round(n/tot*100);
+    el.innerHTML+=`<div class="bar"><div class="lab">${RAGNAME[r]}</div><div class="track"><div class="fill" style="width:${Math.max(pct,8)}%;background:${RAGCLR[r]}">${n} lô · ${pct}%</div></div></div>`;
+  });
+})();
+
+(function(){
+  const m={};DATA.forEach(d=>{const k=d.cust.split(' (')[0];m[k]=(m[k]||0)+d.vol;});
+  const arr=Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  const max=Math.max(...arr.map(a=>a[1]));
+  const el=document.getElementById('cust-bars');
+  arr.forEach(([k,v])=>{
+    const pct=Math.round(v/max*100);
+    el.innerHTML+=`<div class="bar"><div class="lab" style="font-size:11px">${k}</div><div class="track"><div class="fill" style="width:${Math.max(pct,10)}%;background:#0e7a4f">${v}</div></div></div>`;
+  });
+})();
+
+(function(){
+  const sel=document.getElementById('cust-sel');
+  [...new Set(DATA.map(d=>d.cust))].sort().forEach(c=>{
+    const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);
+  });
+})();
+
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.tab).classList.add('active');
+}));
+
+let ragOn={R:true,A:true,G:true};
+const qEl=document.getElementById('q'), custEl=document.getElementById('cust-sel'),
+      rngEl=document.getElementById('stage-rng'), rngVal=document.getElementById('stage-val');
+
+function cardHTML(d){
+  const stageBar=d.stages.map((s,i)=>{
+    const cls=(i+1)<d.at?'done':((i+1)===d.at?'now':'');
+    return `<span class="stp ${cls}">${i+1}·${s}</span>`;
+  }).join('<span style="color:#cbd5e1;margin:0 2px">›</span>');
+  
+  const tagHTML=d.tags.map(t=>{
+    const map={money:['money','💰'],doc:['doc','📄'],ship:['ship','🚢'],new:['new','✨']};
+    const lab={money:'Dòng tiền',doc:'Chứng từ',ship:'Vận tải',new:'Mới'};
+    return `<span class="tag ${t}">${map[t][1]} ${lab[t]}</span>`;
+  }).join('');
+  
+  const facts=d.facts.map(f=>`<div class="fact">• ${f}</div>`).join('');
+  return `<div class="row">
+    <div class="top">
+      <div><div class="cust">${d.cust}</div><div class="ctr">${d.ctr}</div></div>
+      <span class="badge ${d.rag}">${d.rag==='R'?'ĐỎ':d.rag==='A'?'VÀNG':'XANH'}</span>
+    </div>
+    <div class="body">
+      <div style="font-size:12px;color:#64748b;margin-bottom:8px;font-weight:600">${d.title}</div>
+      <div>${tagHTML}</div>
+      <div class="stage" style="margin-top:9px">${stageBar}</div>
+      ${facts}
+      <div class="who">Phụ trách: <span class="ow">${d.owner}</span></div>
+    </div>
+    <div class="next">▶ ${d.next}<br><span style="font-size:11px">Deadline: <span class="dl">${d.dl}</span></span></div>
+  </div>`;
+}
+
+function render(){
+  const q=qEl.value.trim().toLowerCase();
+  const cust=custEl.value;
+  const minStage=+rngEl.value;
+  const list=DATA.filter(d=>{
+    if(!ragOn[d.rag])return false;
+    if(cust!=='ALL'&&d.cust!==cust)return false;
+    if(d.at<minStage)return false;
+    if(q){
+      const hay=(d.cust+' '+d.ctr+' '+d.title+' '+d.facts.join(' ')+' '+d.owner+' '+d.next).toLowerCase();
+      if(!hay.includes(q))return false;
+    }
+    return true;
+  });
+  document.getElementById('grid').innerHTML=list.map(cardHTML).join('');
+  document.getElementById('empty').style.display=list.length?'none':'block';
+  document.getElementById('count').textContent=`Hiển thị ${list.length} / ${DATA.length} hợp đồng/lô`+
+    (list.length<DATA.length?' (đang lọc)':'');
+}
+
+document.querySelectorAll('#rag-chips .chip').forEach(c=>c.addEventListener('click',()=>{
+  const r=c.dataset.rag;
+  if(r==='ALL'){
+    const turnOn=!(ragOn.R&&ragOn.A&&ragOn.G);
+    ragOn={R:turnOn,A:turnOn,G:turnOn};
+  }else{ragOn[r]=!ragOn[r];}
+  syncChips();render();
+}));
+function syncChips(){
+  document.querySelectorAll('#rag-chips .chip').forEach(c=>{
+    const r=c.dataset.rag;
+    if(r==='ALL'){c.classList.toggle('on',ragOn.R&&ragOn.A&&ragOn.G);}
+    else c.classList.toggle('on',ragOn[r]);
+  });
+}
+qEl.addEventListener('input',render);
+custEl.addEventListener('change',render);
+rngEl.addEventListener('input',()=>{rngVal.textContent='≥'+rngEl.value;render();});
+document.getElementById('reset').addEventListener('click',()=>{
+  qEl.value='';custEl.value='ALL';rngEl.value=1;rngVal.textContent='≥1';
+  ragOn={R:true,A:true,G:true};syncChips();render();
+});
+
+(function(){
+  const el=document.getElementById('risk-list');
+  ['R','A','G'].forEach(r=>{
+    const items=DATA.filter(d=>d.rag===r);
+    if(!items.length)return;
+    el.innerHTML+=`<h3 style="color:var(--ink);margin:18px 0 6px;font-size:15px">${RAGNAME[r]} (${items.length})</h3>`;
+    items.forEach(d=>{
+      el.innerHTML+=`<div class="insight" style="border-left:4px solid ${RAGCLR[r]}">
+        <h3>${d.cust} — <span style="font-weight:500;color:var(--muted)">${d.ctr}</span></h3>
+        <div style="font-size:12.5px;color:#475569;margin-bottom:6px"><b>${d.title}</b></div>
+        <div style="font-size:12px;font-weight:700;color:var(--brand2);margin-top:6px">SỰ VIỆC</div>
+        <ul>${d.facts.map(f=>'<li>'+f+'</li>').join('')}</ul>
+        <div style="font-size:12px;font-weight:700;color:var(--brand);margin-top:8px">ĐỀ XUẤT &amp; PHỐI HỢP</div>
+        <ul><li>${d.next}</li><li>Phụ trách / phối hợp: <b>${d.owner}</b> · Deadline: <span style="color:rgb(220, 31, 31);font-weight:700">${d.dl}</span></li></ul>
+      </div>`;
+    });
+  });
+})();
+
+(function(){
+  const acts=[
+    {t:"AGRICO VA-AGI-210126 (GẤP)", b:"Chứng từ + QA xác minh 3 chất vượt ngưỡng là chất gì, ngưỡng thị trường đích, có phương án test lại/chứng thư thay thế không; Sales chuẩn bị kịch bản thương lượng với khách trước khi khách phát hiện; phối hợp NCC/nhà máy truy nguyên lô. Cần xác minh tên 3 chất + thị trường đích.", who:"Huyền + QA + Sales", dl:"GẤP — 09/6", rag:"R"},
+    {t:"Wilmar / Ghana — giữ lập trường Phyto", b:"Giữ vững việc từ chối xóa field bắt buộc trên Phyto (đúng); Sales giải thích rõ để khách chấp nhận; chốt các cert còn lại (CoA/CoW) sớm. Cần xác minh khách đã chấp nhận giải thích chưa.", who:"Nhi + Tiên + Sales", dl:"09/6", rag:"R"},
+    {t:"AWTC — thu hồi công nợ", b:"Lập bảng tuổi nợ 8 lô + kế hoạch giục TT cụ thể; cân nhắc điều kiện TT cho HĐ mới 090626; ưu tiên hoàn thiện CO cho 280426 L1-2 để không thêm lô tồn. Cần xác minh lý do khách chậm TT.", who:"Khiet (Sales) + Chứng từ", dl:"Tuần này", rag:"R"},
+    {t:"Surewave / MOI — checklist deadline", b:"Dựng checklist deadline confirm: MPR260079 confirm draft BL trước 9:00 ngày 11/6; theo dõi Max ký các bản contract điều chỉnh Vitamin 0.1% (130526/220526/040626/090626).", who:"Huyền + Nguyên + Tiên", dl:"11/6 09:00", rag:"A"},
+    {t:"RIZE LOT2 — DET + đổi tàu", b:"Thông báo lại ETD đổi tàu (MSC CAMILLE, transit SIN) cho khách; ghi nhận DET 394.600 VND vào chi phí lô; soát lại quy trình lấy cont sớm để tránh DET lặp lại.", who:"Nhi + Vận hành", dl:"09–11/6", rag:"R"},
+    {t:"Vận tải thủy/bộ vừa duyệt", b:"Chốt cước + lịch lấy rỗng trước khi triển khai cho các lô vừa duyệt chủ trương: CV-230426, UCS-160526, SW.130526/220526, TL2026-08.", who:"PMH + Dũng + Kỳ Anh", dl:"Trước khi triển khai", rag:"A"},
+    {t:"Bảo hiểm Charpeaco / Delmon", b:"Đồng bộ lịch gửi chứng từ nháp/gốc với Vinarice/Bảo Việt để giữ điều kiện đơn BH (CV-230426 ETD 26/6; UCS-160526 ETD 21/6, cutoff 15:00 18/6).", who:"Đạt (BPBH) + Chứng từ", dl:"Theo ngày tàu chạy", rag:"A"},
+  ];
+  const el=document.getElementById('action-list');
+  acts.forEach((a,i)=>{
+    el.innerHTML+=`<div class="insight" style="border-left:4px solid ${RAGCLR[a.rag]};display:flex;gap:14px;align-items:flex-start">
+      <div style="font-size:22px;font-weight:800;color:var(--muted);min-width:30px">${i+1}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px;margin-bottom:3px;color:var(--ink)">${a.t}</div>
+        <div style="font-size:13px;color:#334155">${a.b}</div>
+        <div style="font-size:12px;color:rgb(117, 132, 155);margin-top:6px">👥 <b>${a.who}</b> &nbsp;·&nbsp; ⏱ Deadline: <span style="color:rgb(220, 31, 31);font-weight:700">${a.dl}</span></div>
+      </div></div>`;
+  });
+})();
+
+render();
+</script>
+<script>
+/* === Tu dung thanh chon ngay (THEM MOI) === */
+(async()=>{
+  try{
+    const res=await fetch('reports.json',{cache:'no-store'});
+    const days=await res.json();
+    const here=location.pathname.split('/').pop();
+    const isHome=(here===''||here==='index.html');
+    const nav=document.getElementById('datenav');
+    days.forEach((d,i)=>{
+      const file=d+'.html';
+      const a=document.createElement('a');
+      a.textContent=d.slice(8,10)+'/'+d.slice(5,7);
+      const isCurrent = file===here || (isHome && i===0);
+      if(isCurrent){a.className='current';} else {a.href=file;}
+      nav.appendChild(a);
+    });
+  }catch(e){console.warn('Khong tai duoc reports.json',e);}
+})();
+</script>
+</body>
+</html>
